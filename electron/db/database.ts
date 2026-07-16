@@ -7,7 +7,12 @@ let db: Database;
 let dbPath: string;
 
 export async function initDb(): Promise<void> {
-  const SQL = await initSqlJs();
+  const SQL = await initSqlJs({
+    locateFile: () => {
+      return path.join(process.resourcesPath, 'sql-wasm.wasm');
+    }
+  });
+
   dbPath = path.join(app.getPath('userData'), 'app.db');
 
   if (fs.existsSync(dbPath)) {
@@ -70,23 +75,39 @@ export function getDb(): Database {
   return db;
 }
 
-export function queryOne<T>(sql: string, params: (string | number | null)[] = []): T | undefined {
+export function queryOne<T>(
+  sql: string,
+  params: (string | number | null)[] = []
+): T | undefined {
+
   const stmt = db.prepare(sql);
   stmt.bind(params);
+
   if (stmt.step()) {
     const row = stmt.getAsObject() as unknown as T;
     stmt.free();
     return row;
   }
+
   stmt.free();
   return undefined;
 }
 
-export function queryAll<T>(sql: string, params: (string | number | null)[] = []): T[] {
+export function queryAll<T>(
+  sql: string,
+  params: (string | number | null)[] = []
+): T[] {
+
   const stmt = db.prepare(sql);
   stmt.bind(params);
+
   const rows: T[] = [];
-  while (stmt.step()) rows.push(stmt.getAsObject() as unknown as T);
+
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject() as unknown as T);
+  }
+
   stmt.free();
+
   return rows;
 }
