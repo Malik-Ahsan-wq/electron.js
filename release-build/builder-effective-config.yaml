@@ -1,0 +1,37 @@
+directories:
+  output: release-build
+  buildResources: build
+appId: com.yourname.todoapp
+productName: TodoApp
+copyright: Copyright © 2024
+files:
+  - filter:
+      - dist/**/*
+      - renderer/out/**/*
+      - node_modules/**/*
+      - package.json
+extraResources:
+  - from: node_modules/sql.js/dist/sql-wasm.wasm
+    to: sql-wasm.wasm
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: assets/icon.ico
+  requestedExecutionLevel: asInvoker
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: TodoApp
+mac:
+  target: dmg
+  icon: assets/icon.icns
+  category: public.app-category.productivity
+linux:
+  target: AppImage
+  icon: assets/icon.png
+  category: Office
+electronVersion: 29.4.6
