@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { navigateReplace } from '@/lib/navigate';
 
 export default function RootPage() {
-  const router = useRouter();
   useEffect(() => {
-    router.replace('/login');
-  }, [router]);
+    navigateReplace('/login');
+  }, []);
   return null;
 }

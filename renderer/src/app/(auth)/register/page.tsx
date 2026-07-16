@@ -1,15 +1,13 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import { navigate } from '@/lib/navigate';
 
 export default function RegisterPage() {
   const { register } = useAuth();
-  const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +22,7 @@ export default function RegisterPage() {
       fd.get('password') as string
     );
     setLoading(false);
-    if (res.success) router.push('/login');
+    if (res.success) navigate('/login');
     else setError(res.error ?? 'Registration failed');
   }
 
@@ -40,7 +38,7 @@ export default function RegisterPage() {
       </form>
       <p className="text-sm text-center mt-4 text-gray-500">
         Have an account?{' '}
-        <Link href="/login" className="text-blue-600 hover:underline">Sign In</Link>
+        <a href="#" onClick={(e) => { e.preventDefault(); navigate('/login'); }} className="text-blue-600 hover:underline">Sign In</a>
       </p>
     </>
   );

@@ -50,6 +50,7 @@ function createWindow(): void {
     minWidth:  900,
     minHeight: 640,
     show: false, // show after ready-to-show to avoid flash
+    backgroundColor: '#f8fafc',
     webPreferences: {
       preload:          path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -80,7 +81,7 @@ function createWindow(): void {
     win.loadURL('http://localhost:3000');
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, '../renderer/out/index.html'));
+    win.loadFile(path.join(__dirname, '../renderer/out/login/index.html'));
   }
 
   win.webContents.on('did-fail-load', (_, errorCode, errorDescription) => {

@@ -1,7 +1,9 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import type { User } from '@/types';
+
+const STORAGE_KEY = 'todoapp_user';
 
 interface AuthContextValue {
   user: User | null;
@@ -14,10 +16,27 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setUser(JSON.parse(saved));
+    } catch { /* ignore */ }
+    setReady(true);
+  }, []);
+
+  const saveUser = (u: User | null) => {
+    setUser(u);
+    try {
+      if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch { /* ignore */ }
+  };
 
   const login = useCallback(async (email: string, password: string) => {
     const res = await window.electronAPI.auth.login(email, password);
-    if (res.success && res.user) setUser(res.user);
+    if (res.success && res.user) saveUser(res.user);
     return { success: res.success, error: res.error };
   }, []);
 
@@ -28,8 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await window.electronAPI.auth.logout();
-    setUser(null);
+    saveUser(null);
   }, []);
+
+  if (!ready) return null;
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout }}>

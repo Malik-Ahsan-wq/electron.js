@@ -1,17 +1,7 @@
 'use client';
 
-/**
- * useKeyboardShortcuts — Registers global keyboard shortcuts.
- *
- * Shortcuts:
- *   Ctrl+N        → New todo
- *   Ctrl+K        → Open global search
- *   Ctrl+,        → Open settings
- *   Ctrl+1..4     → Navigate to Dashboard / Todos / Calendar / Trash
- *   Escape        → Close modals (handled by individual components)
- */
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { navigate } from '@/lib/navigate';
 
 interface ShortcutHandlers {
   onNewTodo?:    () => void;
@@ -20,8 +10,6 @@ interface ShortcutHandlers {
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers = {}): void {
-  const router = useRouter();
-
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
       const ctrl = e.ctrlKey || e.metaKey;
@@ -42,24 +30,24 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers = {}): void {
           break;
         case '1':
           e.preventDefault();
-          router.push('/dashboard');
+          navigate('/dashboard');
           break;
         case '2':
           e.preventDefault();
-          router.push('/todos');
+          navigate('/todos');
           break;
         case '3':
           e.preventDefault();
-          router.push('/calendar');
+          navigate('/calendar');
           break;
         case '4':
           e.preventDefault();
-          router.push('/trash');
+          navigate('/trash');
           break;
       }
     };
 
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [handlers, router]);
+  }, [handlers]);
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import GlobalSearch from '@/components/search/GlobalSearch';
@@ -9,15 +8,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTodoStore } from '@/store/todoStore';
 import { SettingsProvider } from '@/hooks/useSettings';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { navigate } from '@/lib/navigate';
 
 function AppShell({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const router   = useRouter();
   const { loadAll, loadCategories, loadStats, loadTrash } = useTodoStore();
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) { router.push('/login'); return; }
+    if (!user) { navigate('/login'); return; }
     loadAll(user.id);
     loadCategories(user.id);
     loadStats(user.id);
@@ -25,7 +24,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const openSearch   = useCallback(() => setSearchOpen(true),  []);
-  const openSettings = useCallback(() => router.push('/settings'), [router]);
+  const openSettings = useCallback(() => navigate('/settings'), []);
 
   useKeyboardShortcuts({ onSearch: openSearch, onSettings: openSettings });
 

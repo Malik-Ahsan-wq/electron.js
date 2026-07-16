@@ -3,7 +3,7 @@
 import { Bell, Search, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTodoStore } from '@/store/todoStore';
-import { useRouter } from 'next/navigation';
+import { navigate } from '@/lib/navigate';
 
 interface Props {
   onSearchOpen: () => void;
@@ -12,7 +12,6 @@ interface Props {
 export default function Header({ onSearchOpen }: Props) {
   const { user, logout } = useAuth();
   const { todos }        = useTodoStore();
-  const router           = useRouter();
 
   const overdueCount = todos.filter(t => {
     if (!t.due_date || t.status === 'completed') return false;
@@ -21,7 +20,7 @@ export default function Header({ onSearchOpen }: Props) {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/login');
+    navigate('/login');
   };
 
   return (
@@ -62,7 +61,7 @@ export default function Header({ onSearchOpen }: Props) {
 
         {/* Settings */}
         <button
-          onClick={() => router.push('/settings')}
+          onClick={() => navigate('/settings')}
           title="Settings (Ctrl+,)"
           className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"
         >

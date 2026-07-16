@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { LayoutDashboard, CheckSquare, Calendar, Trash2, Settings } from 'lucide-react';
 import { useTodoStore } from '@/store/todoStore';
+import { navigate, getActiveRoute } from '@/lib/navigate';
 
 const NAV = [
   { label: 'Dashboard', href: '/dashboard',  icon: LayoutDashboard },
@@ -14,10 +14,14 @@ const NAV = [
 ];
 
 export default function Sidebar() {
-  const pathname     = usePathname();
+  const [activeHref, setActiveHref] = useState('/');
   const { todos, trashedTodos } = useTodoStore();
   const pendingCount = todos.filter(t => t.status !== 'completed').length;
   const trashCount   = trashedTodos.length;
+
+  useEffect(() => {
+    setActiveHref(getActiveRoute());
+  }, []);
 
   return (
     <aside className="w-60 h-full bg-gray-950 text-white flex flex-col py-6 px-3 shrink-0">
@@ -32,12 +36,13 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex flex-col gap-0.5 flex-1">
         {NAV.map(({ label, href, icon: Icon }) => {
-          const active = pathname === href || pathname.startsWith(href + '/');
+          const active = activeHref === href || activeHref.startsWith(href + '/');
           const badge  = label === 'Todos' ? pendingCount : label === 'Trash' ? trashCount : 0;
           return (
-            <Link
+            <a
               key={href}
-              href={href}
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigate(href); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                 active ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white'
               }`}
@@ -51,7 +56,7 @@ export default function Sidebar() {
                   {badge}
                 </span>
               )}
-            </Link>
+            </a>
           );
         })}
       </nav>
