@@ -20,7 +20,7 @@ import { registerDataHandlers }         from './ipc/dataHandlers';
 import { registerSearchHandlers }       from './ipc/searchHandlers';
 import { logger }                       from './logger';
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = !app.isPackaged;
 
 /* ── Global error guards ──────────────────────────────────────────────────── */
 process.on('uncaughtException',  (err) => logger.error('uncaughtException',  err));
@@ -80,11 +80,21 @@ function createWindow(): void {
     win.loadURL('http://localhost:3000');
     win.webContents.openDevTools();
   } else {
- win.loadFile(path.join(__dirname, '../renderer/out/index.html'));
+    win.loadFile(path.join(__dirname, '../renderer/out/index.html'));
   }
+
   win.webContents.on('did-fail-load', (_, errorCode, errorDescription) => {
-  console.error('Failed to load:', errorCode, errorDescription);
-});
+    logger.error(`Failed to load page: ${errorCode} ${errorDescription}`);
+    if (!isDev) win.webContents.openDevTools();
+  });
+
+  win.webContents.on('did-finish-load', () => {
+    logger.info('Page loaded successfully');
+  });
+
+  win.webContents.on('console-message', (_e, level, message) => {
+    logger.info(`Renderer console [${level}]: ${message}`);
+  });
 
   logger.info('Window created');
 }

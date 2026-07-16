@@ -1,8 +1,8 @@
 version: 1.0.0
 files:
   - url: TodoApp-Setup-1.0.0.exe
-    sha512: xq5veysOFHo5I9XxH5NDFjTJN0/JTitRp+dLJyA3aGi5sREMHjWo8Z5PlhSnvO3m6iJwqMgXkSSGhp8QNJCsug==
-    size: 80653315
+    sha512: sSMQkYWQy8Kni3diKBWc+mRqLOwED9utkeEywMWgVL5E+naU+z9Yf/yHY6X2XahVrz5hRsM4lLoN6EJVZD/vhw==
+    size: 80653987
 path: TodoApp-Setup-1.0.0.exe
-sha512: xq5veysOFHo5I9XxH5NDFjTJN0/JTitRp+dLJyA3aGi5sREMHjWo8Z5PlhSnvO3m6iJwqMgXkSSGhp8QNJCsug==
-releaseDate: '2026-07-16T11:26:29.995Z'
+sha512: sSMQkYWQy8Kni3diKBWc+mRqLOwED9utkeEywMWgVL5E+naU+z9Yf/yHY6X2XahVrz5hRsM4lLoN6EJVZD/vhw==
+releaseDate: '2026-07-16T12:23:22.778Z'
