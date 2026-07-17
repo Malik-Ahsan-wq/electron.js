@@ -8,7 +8,7 @@
  *  - Run periodic auto-save
  *  - Global error handling
  */
-import { app, BrowserWindow, ipcMain, shell, protocol } from 'electron';
+import { app, BrowserWindow, ipcMain, shell, protocol, net } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import windowStateKeeper from 'electron-window-state';
@@ -43,31 +43,31 @@ function startAutoSave(intervalMs: number): void {
 function registerAppProtocol(): void {
   const outDir = path.join(__dirname, '../renderer/out');
 
-  protocol.registerFileProtocol('app', (request, callback) => {
-    let url = request.url.replace('app://', '');
-    url = url.split('?')[0].split('#')[0];
+  protocol.handle('app', (request) => {
+    const url = new URL(request.url);
+    let filePath = decodeURIComponent(url.pathname);
 
-    // app://  or  app:///  →  index.html
-    if (url === '' || url === '/') url = 'index.html';
+    if (filePath === '' || filePath === '/') filePath = 'index.html';
 
-    let filePath = path.join(outDir, url);
+    // Remove leading slash for path.join
+    if (filePath.startsWith('/')) filePath = filePath.slice(1);
 
-    if (!fs.existsSync(filePath)) {
+    let fullPath = path.join(outDir, filePath);
+
+    if (!fs.existsSync(fullPath)) {
       // Try as flat .html file (e.g., /login → login.html)
-      const flatPath = path.join(outDir, url + '.html');
+      const flatPath = path.join(outDir, filePath + '.html');
       if (fs.existsSync(flatPath)) {
-        callback({ path: flatPath });
-        return;
+        return net.fetch('file://' + flatPath.replace(/\\/g, '/'));
       }
       // Try as directory index (e.g., /login/ → /login/index.html)
-      const dirIndex = path.join(outDir, url, 'index.html');
+      const dirIndex = path.join(outDir, filePath, 'index.html');
       if (fs.existsSync(dirIndex)) {
-        callback({ path: dirIndex });
-        return;
+        return net.fetch('file://' + dirIndex.replace(/\\/g, '/'));
       }
     }
 
-    callback({ path: filePath });
+    return net.fetch('file://' + fullPath.replace(/\\/g, '/'));
   });
 }
 
