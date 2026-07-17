@@ -5,9 +5,9 @@
  * Triggered by Ctrl+K or the search button in the header.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { Search, FileText, Tag, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { navigate } from '@/lib/navigate';
 import type { SearchResult } from '@/types';
 import PriorityBadge from '@/components/todos/PriorityBadge';
 
@@ -26,7 +26,6 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export default function GlobalSearch({ onClose }: Props) {
   const { user } = useAuth();
-  const router   = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query,   setQuery]   = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -50,15 +49,15 @@ export default function GlobalSearch({ onClose }: Props) {
       .finally(() => setLoading(false));
   }, [debounced, user]);
 
-  const navigate = useCallback((r: SearchResult) => {
-    router.push('/todos');
+  const goToResult = useCallback((r: SearchResult) => {
+    navigate('/todos');
     onClose();
-  }, [router, onClose]);
+  }, [onClose]);
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setActive(i => Math.min(i + 1, results.length - 1)); }
     if (e.key === 'ArrowUp')   { e.preventDefault(); setActive(i => Math.max(i - 1, 0)); }
-    if (e.key === 'Enter' && results[active]) navigate(results[active]);
+    if (e.key === 'Enter' && results[active]) goToResult(results[active]);
   };
 
   return (
@@ -95,7 +94,7 @@ export default function GlobalSearch({ onClose }: Props) {
             {results.map((r, i) => (
               <li key={`${r.type}-${r.id}`}>
                 <button
-                  onClick={() => navigate(r)}
+                  onClick={() => goToResult(r)}
                   onMouseEnter={() => setActive(i)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                     i === active

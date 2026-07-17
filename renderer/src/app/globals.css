@@ -11,6 +11,11 @@
 
 html, body, #__next { height: 100%; }
 
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -30,3 +35,23 @@ main { animation: fadeIn 0.15s ease; }
 /* Line clamp */
 .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
 .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+/* Focus visible ring for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Prevent text selection on drag handles */
+[data-rfd-drag-handle-draggable-id] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Better button reset */
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+/* Selection color */
+::selection { background-color: #6366f1; color: white; }

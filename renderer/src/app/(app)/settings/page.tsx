@@ -59,7 +59,6 @@ export default function SettingsPage() {
     const res  = await window.electronAPI.data.importJSON(user.id, text);
     e.target.value = '';
     if (!res.success) return notify('error', res.error ?? 'Import failed');
-    // Reload all data after import
     await Promise.all([loadAll(user.id), loadCategories(user.id), loadStats(user.id), loadTrash(user.id)]);
     notify('success', `Imported ${res.imported} todos`);
   };

@@ -73,34 +73,35 @@ export default function TodosPage() {
         </div>
       )}
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="todos">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col gap-2">
-              {filtered.map((todo, index) => (
-                <TodoCard
-                  key={todo.id}
-                  todo={todo}
-                  index={index}
-                  onEdit={(t) => { setEditTodo(t); setModalOpen(true); }}
-                />
-              ))}
-              {provided.placeholder}
-              {filtered.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                    <Plus size={28} className="text-gray-300 dark:text-gray-600" />
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">No todos found</p>
-                  <button onClick={openNew} className="mt-2 text-indigo-600 text-sm hover:underline">
-                    Create your first todo
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      {filtered.length > 0 ? (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="todos">
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col gap-2">
+                {filtered.map((todo, index) => (
+                  <TodoCard
+                    key={todo.id}
+                    todo={todo}
+                    index={index}
+                    onEdit={(t) => { setEditTodo(t); setModalOpen(true); }}
+                  />
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+            <Plus size={28} className="text-gray-300 dark:text-gray-600" />
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">No todos found</p>
+          <button onClick={openNew} className="mt-2 text-indigo-600 text-sm hover:underline">
+            Create your first todo
+          </button>
+        </div>
+      )}
 
       {modalOpen && (
         <TodoModal todo={editTodo} onClose={() => { setModalOpen(false); setEditTodo(null); }} />

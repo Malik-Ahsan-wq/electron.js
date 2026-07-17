@@ -6,9 +6,14 @@ import { app } from 'electron';
 let db: Database;
 let dbPath: string;
 
+const isDev = !app.isPackaged;
+
 export async function initDb(): Promise<void> {
   const SQL = await initSqlJs({
     locateFile: () => {
+      if (isDev) {
+        return path.join(__dirname, '../../node_modules/sql.js/dist/sql-wasm.wasm');
+      }
       return path.join(process.resourcesPath, 'sql-wasm.wasm');
     }
   });

@@ -48,14 +48,22 @@ export default function Header({ onSearchOpen }: Props) {
         </button>
 
         {/* Overdue bell */}
-        <div className="relative">
-          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors">
+        <div className="relative group">
+          <button
+            title={`${overdueCount} overdue`}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"
+          >
             <Bell size={17} />
           </button>
           {overdueCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {overdueCount}
+              {overdueCount > 9 ? '9+' : overdueCount}
             </span>
+          )}
+          {overdueCount > 0 && (
+            <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 px-3 hidden group-hover:block whitespace-nowrap z-20">
+              <p className="text-xs text-red-500 font-medium">{overdueCount} overdue todo{overdueCount !== 1 ? 's' : ''}</p>
+            </div>
           )}
         </div>
 

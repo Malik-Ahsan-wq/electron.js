@@ -21,7 +21,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
     loadCategories(user.id);
     loadStats(user.id);
     loadTrash(user.id);
-  }, [user]);
+  }, [user, loadAll, loadCategories, loadStats, loadTrash]);
 
   const openSearch   = useCallback(() => setSearchOpen(true),  []);
   const openSettings = useCallback(() => navigate('/settings'), []);

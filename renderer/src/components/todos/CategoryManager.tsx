@@ -56,7 +56,12 @@ export default function CategoryManager({ onClose }: Props) {
                     className={`w-7 h-7 rounded-full transition-transform ${selectedColor === c ? 'scale-125 ring-2 ring-offset-2 ring-gray-400' : 'hover:scale-110'}`}
                     style={{ backgroundColor: c }} />
                 ))}
-                <input type="color" {...register('color')} className="w-7 h-7 rounded-full cursor-pointer border-0 p-0" />
+                <input
+                  type="color"
+                  value={selectedColor}
+                  onChange={e => setValue('color', e.target.value)}
+                  className="w-7 h-7 rounded-full cursor-pointer border-0 p-0"
+                />
               </div>
             </div>
             <Button type="submit" loading={isSubmitting} className="w-full">

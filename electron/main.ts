@@ -8,7 +8,8 @@
  *  - Run periodic auto-save
  *  - Global error handling
  */
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, shell, protocol } from 'electron';
+import * as fs from 'fs';
 import * as path from 'path';
 import windowStateKeeper from 'electron-window-state';
 import { initDb, persist } from './db/database';
@@ -38,6 +39,35 @@ function startAutoSave(intervalMs: number): void {
   }, intervalMs);
 }
 
+/* ── Custom protocol for production static serving ────────────────────────── */
+function registerAppProtocol(): void {
+  const outDir = path.join(__dirname, '../renderer/out');
+
+  protocol.registerFileProtocol('app', (request, callback) => {
+    let url = request.url.replace('app://', '');
+    url = url.split('?')[0].split('#')[0];
+
+    // Directory index: /login/ → /login/index.html
+    if (url.endsWith('/')) url += 'index.html';
+    // Root: / → /index.html
+    if (url === '') url = 'index.html';
+
+    const filePath = path.join(outDir, url);
+
+    // If the exact file doesn't exist, try index.html in that directory
+    // (e.g., /dashboard → /dashboard/index.html for static export)
+    if (!fs.existsSync(filePath)) {
+      const dirIndex = path.join(outDir, url, 'index.html');
+      if (fs.existsSync(dirIndex)) {
+        callback({ path: dirIndex });
+        return;
+      }
+    }
+
+    callback({ path: filePath });
+  });
+}
+
 /* ── Window factory ──────────────────────────────────────────────────────── */
 function createWindow(): void {
   const state = windowStateKeeper({ defaultWidth: 1280, defaultHeight: 860 });
@@ -49,23 +79,21 @@ function createWindow(): void {
     height:    state.height,
     minWidth:  900,
     minHeight: 640,
-    show: false, // show after ready-to-show to avoid flash
+    show: false,
     backgroundColor: '#f8fafc',
     webPreferences: {
       preload:          path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration:  false,
       sandbox:          false,
-      // Prevent renderer from navigating to external URLs
       webSecurity: true,
     },
   });
 
   state.manage(win);
 
-  // Prevent navigation to external URLs (security)
   win.webContents.on('will-navigate', (event, url) => {
-    const allowed = isDev ? 'http://localhost:3000' : 'file://';
+    const allowed = isDev ? 'http://localhost:3000' : 'app://';
     if (!url.startsWith(allowed)) {
       event.preventDefault();
       shell.openExternal(url);
@@ -81,7 +109,7 @@ function createWindow(): void {
     win.loadURL('http://localhost:3000');
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, '../renderer/out/login/index.html'));
+    win.loadURL('app:///');
   }
 
   win.webContents.on('did-fail-load', (_, errorCode, errorDescription) => {
@@ -103,10 +131,12 @@ function createWindow(): void {
 /* ── App lifecycle ───────────────────────────────────────────────────────── */
 app.whenReady().then(async () => {
   try {
+    // Register custom protocol before doing anything else
+    if (!isDev) registerAppProtocol();
+
     await initDb();
     logger.info('Database initialised');
 
-    // Register all IPC handlers
     registerAuthHandlers(ipcMain);
     registerTodoHandlers(ipcMain);
     registerNotificationHandlers(ipcMain);
@@ -114,11 +144,9 @@ app.whenReady().then(async () => {
     registerDataHandlers(ipcMain);
     registerSearchHandlers(ipcMain);
 
-    // Start auto-save with configured interval
     const settings = readSettings();
     startAutoSave(settings.autoSaveIntervalMs);
 
-    // Allow renderer to update auto-save interval dynamically
     ipcMain.on('settings:autoSaveChanged', (_e, intervalMs: number) => {
       startAutoSave(intervalMs);
     });
