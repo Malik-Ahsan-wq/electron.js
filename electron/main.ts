@@ -23,6 +23,11 @@ import { logger }                       from './logger';
 
 const isDev = !app.isPackaged;
 
+/* ── Register app:// as a privileged scheme (must be before app.whenReady) ── */
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } },
+]);
+
 /* ── Global error guards ──────────────────────────────────────────────────── */
 process.on('uncaughtException',  (err) => logger.error('uncaughtException',  err));
 process.on('unhandledRejection', (err) => logger.error('unhandledRejection', err));
@@ -40,34 +45,37 @@ function startAutoSave(intervalMs: number): void {
 }
 
 /* ── Custom protocol for production static serving ────────────────────────── */
+function toFileUrl(p: string): string {
+  return 'file:///' + p.replace(/\\/g, '/');
+}
+
 function registerAppProtocol(): void {
   const outDir = path.join(__dirname, '../renderer/out');
 
   protocol.handle('app', (request) => {
     const url = new URL(request.url);
-    let filePath = decodeURIComponent(url.pathname);
+    const relative = decodeURIComponent(url.pathname).replace(/^\//, '') || 'index.html';
 
-    if (filePath === '' || filePath === '/') filePath = 'index.html';
-
-    // Remove leading slash for path.join
-    if (filePath.startsWith('/')) filePath = filePath.slice(1);
-
-    let fullPath = path.join(outDir, filePath);
-
-    if (!fs.existsSync(fullPath)) {
-      // Try as flat .html file (e.g., /login → login.html)
-      const flatPath = path.join(outDir, filePath + '.html');
-      if (fs.existsSync(flatPath)) {
-        return net.fetch('file://' + flatPath.replace(/\\/g, '/'));
-      }
-      // Try as directory index (e.g., /login/ → /login/index.html)
-      const dirIndex = path.join(outDir, filePath, 'index.html');
-      if (fs.existsSync(dirIndex)) {
-        return net.fetch('file://' + dirIndex.replace(/\\/g, '/'));
-      }
+    // 1. Exact file match
+    const exact = path.join(outDir, relative);
+    if (fs.existsSync(exact) && fs.statSync(exact).isFile()) {
+      return net.fetch(toFileUrl(exact));
     }
 
-    return net.fetch('file://' + fullPath.replace(/\\/g, '/'));
+    // 2. Directory index (trailingSlash routes: /login/ → /login/index.html)
+    const dirIndex = path.join(outDir, relative, 'index.html');
+    if (fs.existsSync(dirIndex)) {
+      return net.fetch(toFileUrl(dirIndex));
+    }
+
+    // 3. Flat .html (e.g. /login → login.html)
+    const flat = path.join(outDir, relative + '.html');
+    if (fs.existsSync(flat)) {
+      return net.fetch(toFileUrl(flat));
+    }
+
+    // 4. Fallback to root
+    return net.fetch(toFileUrl(path.join(outDir, 'index.html')));
   });
 }
 
