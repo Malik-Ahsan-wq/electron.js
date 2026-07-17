@@ -2,10 +2,7 @@
 
 function getRelativeTarget(href: string): string {
   const cleanHref = href.startsWith('/') ? href.slice(1) : href;
-  const path = window.location.pathname.replace(/\\/g, '/');
-  const isInSubdir = path.match(/\/[^/]+\/index\.html$/);
-  const prefix = isInSubdir ? '../' : './';
-  return prefix + cleanHref + '/index.html';
+  return './' + cleanHref + '.html';
 }
 
 export function navigate(href: string) {
@@ -31,6 +28,6 @@ export function navigateReplace(href: string) {
 export function getActiveRoute(): string {
   if (typeof window === 'undefined') return '/';
   const path = window.location.pathname.replace(/\\/g, '/');
-  const match = path.match(/\/([^/]+)\/index\.html$/);
+  const match = path.match(/\/([^/]+)\.html$/);
   return match ? '/' + match[1] : '/';
 }

@@ -81,7 +81,7 @@ function createWindow(): void {
     win.loadURL('http://localhost:3000');
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, '../renderer/out/login/index.html'));
+    win.loadFile(path.join(__dirname, '../renderer/out/login.html'));
   }
 
   win.webContents.on('did-fail-load', (_, errorCode, errorDescription) => {
