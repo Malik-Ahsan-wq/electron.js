@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { CheckSquare, Clock, AlertTriangle, ListTodo, Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
+import { navigate } from '@/lib/navigate';
 import { useTodoStore } from '@/store/todoStore';
 import { useAuth } from '@/hooks/useAuth';
 import StatsCard from '@/components/dashboard/StatsCard';
@@ -15,7 +15,6 @@ import type { Priority } from '@/types';
 export default function DashboardPage() {
   const { user }  = useAuth();
   const { stats, todos, loadStats } = useTodoStore();
-  const router    = useRouter();
 
   useEffect(() => { if (user) loadStats(user.id); }, [user]);
 
@@ -37,7 +36,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <button
-          onClick={() => router.push('/todos')}
+          onClick={() => navigate('/todos')}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
         >
           <Plus size={16} /> New Todo
@@ -136,9 +135,9 @@ export default function DashboardPage() {
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Recent Todos</p>
-          <button onClick={() => router.push('/todos')} className="text-xs text-indigo-600 hover:underline">
-            View all
-          </button>
+           <button onClick={() => navigate('/todos')} className="text-xs text-indigo-600 hover:underline">
+             View all
+           </button>
         </div>
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {recent.map(t => (
@@ -156,7 +155,7 @@ export default function DashboardPage() {
           {recent.length === 0 && (
             <div className="px-6 py-8 text-center text-sm text-gray-400">
               No todos yet.{' '}
-              <button onClick={() => router.push('/todos')} className="text-indigo-600 hover:underline">
+              <button onClick={() => navigate('/todos')} className="text-indigo-600 hover:underline">
                 Create one
               </button>
             </div>

@@ -12,3 +12,6 @@ Thumbs.db
 *.dmg
 *.AppImage
 release/
+
+# Build output
+release-build/

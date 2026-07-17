@@ -76,7 +76,7 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
 
   loadTrash: async (userId) => {
     const trashedTodos = await todoService.list(userId, true);
-    set({ trashedTodos: trashedTodos.filter(t => t.deleted === 1) });
+    set({ trashedTodos });
   },
 
   createTodo: async (userId, data) => {
@@ -104,7 +104,13 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
 
   deleteTodo: async (id, userId) => {
     await todoService.softDelete(id);
-    set(s => ({ todos: s.todos.filter(t => t.id !== id) }));
+    set(s => {
+      const deleted = s.todos.find(t => t.id === id);
+      return {
+        todos: s.todos.filter(t => t.id !== id),
+        trashedTodos: deleted ? [...s.trashedTodos, { ...deleted, deleted: 1 as const }] : s.trashedTodos,
+      };
+    });
     get().loadStats(userId);
   },
 
@@ -130,7 +136,14 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
     await todoService.reorder(orderedIds);
     set(s => {
       const map = new Map(s.todos.map(t => [t.id, t]));
-      return { todos: orderedIds.map((id, i) => ({ ...map.get(id)!, position: i })) };
+      return {
+        todos: orderedIds
+          .map((id, i) => {
+            const todo = map.get(id);
+            return todo ? { ...todo, position: i } : null;
+          })
+          .filter(Boolean) as Todo[],
+      };
     });
   },
 

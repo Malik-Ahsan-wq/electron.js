@@ -6,8 +6,8 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, FileText, Tag, X } from 'lucide-react';
-import { navigate } from '@/lib/navigate';
 import { useAuth } from '@/hooks/useAuth';
+import { navigate } from '@/lib/navigate';
 import type { SearchResult } from '@/types';
 import PriorityBadge from '@/components/todos/PriorityBadge';
 
