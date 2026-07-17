@@ -1,9 +1,14 @@
 'use client';
 
+function resolveAppUrl(href: string): string {
+  const path = href.startsWith('/') ? href.slice(1) : href;
+  return 'app:///' + path;
+}
+
 export function navigate(href: string) {
   if (typeof window !== 'undefined') {
     if (window.location.protocol === 'app:') {
-      window.location.href = 'app://' + (href.startsWith('/') ? href.slice(1) : href);
+      window.location.href = resolveAppUrl(href);
     } else if (window.location.protocol === 'file:') {
       window.location.href = href;
     } else {
@@ -15,7 +20,7 @@ export function navigate(href: string) {
 export function navigateReplace(href: string) {
   if (typeof window !== 'undefined') {
     if (window.location.protocol === 'app:') {
-      window.location.replace('app://' + (href.startsWith('/') ? href.slice(1) : href));
+      window.location.replace(resolveAppUrl(href));
     } else if (window.location.protocol === 'file:') {
       window.location.replace(href);
     } else {
